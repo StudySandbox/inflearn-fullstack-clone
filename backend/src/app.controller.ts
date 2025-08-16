@@ -1,5 +1,3 @@
-import { PrismaClient } from 'generated/prisma';
-
 import { Controller, Get } from '@nestjs/common';
 
 import { AppService } from './app.service';
@@ -10,14 +8,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    const prisma = new PrismaClient();
-
-    prisma.test.create({
-      data: {
-        id: '1',
-      },
-    });
-
     return this.appService.getHello();
   }
 }
