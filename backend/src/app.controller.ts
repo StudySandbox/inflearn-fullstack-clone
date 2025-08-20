@@ -3,6 +3,7 @@ import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { AccessTokenGuard } from './auth/guards/access-token.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
@@ -15,6 +16,7 @@ export class AppController {
 
   @Get('user-test')
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token') // access-token이 필요하다는 것을 의미
   testUser(@Req() req: Request) {
     // AUTH_SECRET으로 해독한 유저 정보를 출력
     console.log(req.user);

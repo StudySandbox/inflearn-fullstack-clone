@@ -1,4 +1,6 @@
+import jwt from "jsonwebtoken";
 import NextAuth from "next-auth";
+import { JWT } from "next-auth/jwt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 
@@ -56,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // 3. 비밀번호 일치 여부 확인
         const passwordMatch = comparePassword(
           credentials.password as string,
-          user.hashedPassword
+          user.hashedPassword,
         );
 
         if (!passwordMatch) {
@@ -72,5 +74,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   // 인증방식 설정
   session: {
     strategy: "jwt",
+  },
+  jwt: {
+    encode: async ({ token, secret }) => {
+      return jwt.sign(token as jwt.JwtPayload, secret as string);
+    },
+    decode: async ({ token, secret }) => {
+      return jwt.verify(token as string, secret as string) as JWT;
+    },
   },
 });
