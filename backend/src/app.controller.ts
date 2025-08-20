@@ -18,8 +18,6 @@ export class AppController {
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token') // access-token이 필요하다는 것을 의미
   testUser(@Req() req: Request) {
-    // AUTH_SECRET으로 해독한 유저 정보를 출력
-    console.log(req.user);
-    return 'test completed';
+    return `유저 이메일: ${req.user?.email}`;
   }
 }
