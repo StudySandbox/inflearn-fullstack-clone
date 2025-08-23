@@ -16,9 +16,16 @@ export class CoursesService {
     userId: string,
     createCourseDto: CreateCourseDto,
   ): Promise<Course> {
+    const { categoryIds, ...otherData } = createCourseDto;
+
+    // connect는 기존의 categoryId와 매핑을 지어주는 것
+    // connectOrCreate는 기존의 categoryId와 매핑을 지어주고 없으면 만드는 것
     return this.prisma.course.create({
       data: {
-        ...createCourseDto,
+        ...otherData,
+        categories: {
+          connect: categoryIds!.map((id) => ({ id })),
+        },
         instructorId: userId,
       },
     });
