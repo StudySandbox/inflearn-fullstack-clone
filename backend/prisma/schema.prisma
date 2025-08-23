@@ -48,21 +48,21 @@ model Session {
 
 model User {
   id             String    @id @default(cuid())
+  bio            String?
   name           String?
   email          String?   @unique
-  emailVerified  DateTime? @map("email_verified")
-  hashedPassword String    @map("hashed_password")
   image          String?
-  bio            String?
+  emailVerified  DateTime? @map("email_verified")
+  hashedPassword String?   @map("hashed_password")
 
-  accounts    Account[]
-  sessions    Session[]
-  courses     Course[]
-  reviews     CourseReview[]
-  comments    CourseComment[]
-  questions   CourseQuestion[]
-  activities  LectureActivity[]
-  enrollments CourseEnrollment[]
+  courses           Course[]
+  accounts          Account[]
+  sessions          Session[]
+  courseReviews     CourseReview[]
+  courseComments    CourseComment[]
+  courseQuestions   CourseQuestion[]
+  lectureActivities LectureActivity[]
+  courseEnrollments CourseEnrollment[]
 
   @@map("users")
 }
@@ -78,19 +78,21 @@ model VerificationToken {
 
 // 강의 테이블
 model Course {
-  id               String   @id @default(uuid())
-  slug             String   @unique
+  id               String  @id @default(uuid())
+  slug             String  @unique
   title            String
-  shortDescription String?  @map("short_descrpition")
-  description      String?  @map("description")
-  thumbnailUrl     String?  @map("thumbnail_url")
-  price            Int?     @default(0)
-  discountPrice    Int?     @map("discount_price")
-  level            String   @default("BEGINNER")
-  instructorId     String   @map("instructor_id")
-  isPublished      Boolean  @default(false) @map("is_published")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  price            Int     @default(0)
+  level            String  @default("BEGINNER")
+  status           String  @default("DRAFT")
+  description      String? @map("description")
+  isPublished      Boolean @default(false) @map("is_published")
+  instructorId     String  @map("instructor_id")
+  thumbnailUrl     String? @map("thumbnail_url")
+  discountPrice    Int?    @map("discount_price")
+  shortDescription String? @map("short_descrpition")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   sections    Section[]
   lectures    Lecture[]
@@ -106,33 +108,36 @@ model Course {
 
 // 강의 섹션 테이블
 model Section {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
+  order       Int
   title       String
   description String?
-  order       Int
-  courseId    String   @map("course_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  courseId    String  @map("course_id")
 
-  course   Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
   lectures Lecture[]
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@map("sections")
 }
 
 // 세부 강의 테이블
 model Lecture {
-  id               String   @id @default(uuid())
-  title            String
-  description      String?
+  id               String  @id @default(uuid())
   order            Int
+  title            String
   duration         Int?
-  isPreview        Boolean  @default(false) @map("is_preview")
-  sectionId        String   @map("section_id")
-  courseId         String   @map("course_id")
-  videoStorageInfo Json?    @map("video_storage_info")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  description      String?
+  courseId         String  @map("course_id")
+  sectionId        String  @map("section_id")
+  isPreview        Boolean @default(false) @map("is_preview")
+  videoStorageInfo Json?   @map("video_storage_info")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   activities LectureActivity[]
 
@@ -144,12 +149,13 @@ model Lecture {
 
 // 4개까지 강의 카테고리 가능
 model CourseCategory {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
-  slug        String   @unique
+  slug        String  @unique
   description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   course Course[]
 
@@ -162,8 +168,9 @@ model CourseEnrollment {
   userId     String   @map("user_id")
   courseId   String   @map("course_id")
   enrolledAt DateTime @default(now()) @map("enrolled_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -174,14 +181,15 @@ model CourseEnrollment {
 
 // 강의 후기 테이블
 model CourseReview {
-  id              String   @id @default(uuid())
+  id              String  @id @default(uuid())
   content         String
   rating          Int
-  userId          String   @map("user_id")
-  courseId        String   @map("course_id")
-  instructorReply String?  @map("instructor_reply")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  userId          String  @map("user_id")
+  courseId        String  @map("course_id")
+  instructorReply String? @map("instructor_reply")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -198,6 +206,9 @@ model CourseQuestion {
   userId   String @map("user_id")
   courseId String @map("course_id")
 
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
   comments CourseComment[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -208,12 +219,13 @@ model CourseQuestion {
 
 // 강의 답변 테이블
 model CourseComment {
-  id         String   @id @default(uuid())
+  id         String @id @default(uuid())
   content    String
-  userId     String   @map("user_id")
-  questionId String   @map("question_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt
+  userId     String @map("user_id")
+  questionId String @map("question_id")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   question CourseQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -221,7 +233,7 @@ model CourseComment {
   @@map("course_comments")
 }
 
-// 마지막 시청한 포인트
+// 마지막 시청 시점
 model LectureActivity {
   id            String   @id @default(uuid())
   userId        String   @map("user_id")
