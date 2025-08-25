@@ -1,10 +1,13 @@
+import slugfy from 'slug';
 import { Course, Prisma } from '@prisma/client';
 import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+
 import { PrismaService } from 'src/prisma/prisma.service';
+
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 
@@ -16,17 +19,12 @@ export class CoursesService {
     userId: string,
     createCourseDto: CreateCourseDto,
   ): Promise<Course> {
-    const { categoryIds, ...otherData } = createCourseDto;
-
-    // connect는 기존의 categoryId와 매핑을 지어주는 것
-    // connectOrCreate는 기존의 categoryId와 매핑을 지어주고 없으면 만드는 것
     return this.prisma.course.create({
       data: {
-        ...otherData,
-        categories: {
-          connect: categoryIds!.map((id) => ({ id })),
-        },
+        title: createCourseDto.title,
+        slug: slugfy(createCourseDto.title),
         instructorId: userId,
+        status: 'DRAFT',
       },
     });
   }
@@ -81,13 +79,26 @@ export class CoursesService {
       throw new NotFoundException(`ID: ${id} 코스를 찾을 수 없습니다.`);
     }
 
+    const { categoryIds, ...otherData } = updateCourseDto;
+    const data: Prisma.CourseUpdateInput = {
+      ...otherData,
+    };
+
     if (course.instructorId !== userId) {
       throw new UnauthorizedException('강의의 소유자만 수정할 수 있습니다.');
     }
 
+    // connect는 기존의 categoryId와 매핑을 지어주는 것
+    // connectOrCreate는 기존의 categoryId와 매핑을 지어주고 없으면 만드는 것
+    if (categoryIds && categoryIds.length > 0) {
+      data.categories = {
+        connect: categoryIds.map((id) => ({ id })),
+      };
+    }
+
     return this.prisma.course.update({
       where: { id },
-      data: updateCourseDto,
+      data,
     });
   }
 
@@ -104,8 +115,10 @@ export class CoursesService {
       throw new UnauthorizedException('강의의 소유자만 삭제할 수 있습니다.');
     }
 
-    return this.prisma.course.delete({
+    await this.prisma.course.delete({
       where: { id },
     });
+
+    return course;
   }
 }
