@@ -1,6 +1,11 @@
 import { Request } from 'express';
 import { Prisma } from '@prisma/client';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -15,6 +20,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 
 import { CoursesService } from './courses.service';
@@ -29,6 +35,10 @@ export class CoursesController {
   @Post()
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token') // Swagger를 위한 데코레이터
+  @ApiOkResponse({
+    description: '강의 생성',
+    type: CourseEntity,
+  })
   create(@Req() req: Request, @Body() createCourseDto: CreateCourseDto) {
     if (!req.user) return;
     return this.coursesService.create(req.user.sub, createCourseDto);
@@ -41,6 +51,11 @@ export class CoursesController {
   @ApiQuery({ name: 'categoryId', required: false })
   @ApiQuery({ name: 'skip', required: false })
   @ApiQuery({ name: 'take', required: false })
+  @ApiOkResponse({
+    description: '강의 목록',
+    type: CourseEntity,
+    isArray: true,
+  })
   findAll(
     @Query('title') title?: string,
     @Query('level') level?: string,
@@ -88,6 +103,10 @@ export class CoursesController {
     required: false,
     description: 'sections, lectures, courseReviews 등 포함할 관계 지정',
   })
+  @ApiOkResponse({
+    description: '강의 상세 정보',
+    type: CourseEntity,
+  })
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Query('include') include?: string,
@@ -101,6 +120,10 @@ export class CoursesController {
   @Patch(':id')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '강의 수정',
+    type: CourseEntity,
+  })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
@@ -113,6 +136,10 @@ export class CoursesController {
   @Delete(':id')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '강의 삭제',
+    type: CourseEntity,
+  })
   delete(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
     if (!req.user) return;
     return this.coursesService.delete(id, req.user.sub);
