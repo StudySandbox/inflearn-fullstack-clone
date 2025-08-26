@@ -19,7 +19,7 @@ export default function SiteHeader({
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
 
   return (
-    <header className="site-header w-full border-b bg-white">
+    <header className="site-header mx-auto w-7xl border-b bg-white">
       {/* 상단 헤더 */}
       <div className="header-top flex items-center justify-between gap-4 px-8 py-3">
         {/* 로고 */}
