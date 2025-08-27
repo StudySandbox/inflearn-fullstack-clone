@@ -16,7 +16,10 @@ export default function SiteHeader({
   categories: CourseCategory[];
 }) {
   const pathname = usePathname();
+  const isSiteHeaderNeeded = !pathname.includes("/course/");
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
+
+  if (!isSiteHeaderNeeded) return null;
 
   return (
     <header className="site-header mx-auto w-7xl border-b bg-white">

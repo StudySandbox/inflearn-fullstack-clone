@@ -70,7 +70,7 @@ export const InstructorSidebar = () => {
             variant="link"
             className={cn(
               "w-full justify-start text-base font-medium",
-              isActive ? "bg-white text-green-700" : "",
+              isActive ? "text-primary bg-white font-bold" : "text-green-700",
             )}
             onClick={isPreparing ? alertPreparing : undefined}
             asChild={!isPreparing}
