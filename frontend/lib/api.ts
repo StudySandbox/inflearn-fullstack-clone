@@ -6,6 +6,12 @@ import {
   coursesControllerUpdate,
   coursesControllerFindOne,
   coursesControllerFindAll,
+  sectionsControllerCreate,
+  sectionsControllerDelete,
+  lecturesControllerCreate,
+  lecturesControllerDelete,
+  sectionsControllerUpdate,
+  lecturesControllerUpdate,
   categoriesControllerFindAll,
 } from "@/generated/openapi-client";
 
@@ -54,6 +60,87 @@ export const updateCourse = async (
       id,
     },
     body: updateCourseDto,
+  });
+
+  return { data, error };
+};
+
+// 섹션 생성
+export const createSection = async (courseId: string, title: string) => {
+  const { data, error } = await sectionsControllerCreate({
+    path: {
+      courseId,
+    },
+    body: {
+      title,
+    },
+  });
+
+  return { data, error };
+};
+
+// 섹션 삭제
+export const deleteSection = async (sectionId: string) => {
+  const { data, error } = await sectionsControllerDelete({
+    path: {
+      sectionId,
+    },
+  });
+
+  return { data, error };
+};
+
+// 세부 강의 생성
+export const createLecture = async (sectionId: string, title: string) => {
+  const { data, error } = await lecturesControllerCreate({
+    path: {
+      sectionId,
+    },
+    body: {
+      title,
+    },
+  });
+
+  return { data, error };
+};
+
+// 세부 강의 삭제
+export const deleteLecture = async (lectureId: string) => {
+  const { data, error } = await lecturesControllerDelete({
+    path: {
+      lectureId,
+    },
+  });
+
+  return { data, error };
+};
+
+// 섹션 제목 수정
+export const updateSectionTitle = async (sectionId: string, title: string) => {
+  const { data, error } = await sectionsControllerUpdate({
+    path: {
+      sectionId,
+    },
+    body: {
+      title,
+    },
+  });
+
+  return { data, error };
+};
+
+// 세부 강의 미리보기 수정
+export const updateLecturePreview = async (
+  lectureId: string,
+  isPreview: boolean,
+) => {
+  const { data, error } = await lecturesControllerUpdate({
+    path: {
+      lectureId,
+    },
+    body: {
+      isPreview,
+    },
   });
 
   return { data, error };
