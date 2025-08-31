@@ -2,6 +2,7 @@
 
 import {
   UpdateCourseDto,
+  UpdateLectureDto,
   coursesControllerCreate,
   coursesControllerUpdate,
   coursesControllerFindOne,
@@ -13,6 +14,7 @@ import {
   sectionsControllerUpdate,
   lecturesControllerUpdate,
   categoriesControllerFindAll,
+  mediaControllerUploadMedia,
 } from "@/generated/openapi-client";
 
 // 카테고리 가져오기
@@ -29,10 +31,13 @@ export const getAllInstructorCourses = async () => {
   return { data, error };
 };
 
-export const getCourseById = async (id: string) => {
+export const getCourseById = async (id: string, include?: string) => {
   const { data, error } = await coursesControllerFindOne({
     path: {
       id,
+    },
+    query: {
+      include: include ?? "sections,lectures",
     },
   });
 
@@ -140,6 +145,32 @@ export const updateLecturePreview = async (
     },
     body: {
       isPreview,
+    },
+  });
+
+  return { data, error };
+};
+
+// 세부 강의 수정
+export const updateLecture = async (
+  lectureId: string,
+  updateLectureDto: UpdateLectureDto,
+) => {
+  const { data, error } = await lecturesControllerUpdate({
+    path: {
+      lectureId,
+    },
+    body: updateLectureDto,
+  });
+
+  return { data, error };
+};
+
+// 미디어 업로드
+export const uploadMedia = async (file: File) => {
+  const { data, error } = await mediaControllerUploadMedia({
+    body: {
+      file,
     },
   });
 

@@ -25,6 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EditLectureDialog } from "./_components/edit-lecture-dialog";
 
 interface Props {
   initialCourse: Course;
@@ -46,6 +47,10 @@ const UI = ({ initialCourse }: Props) => {
   const [sectionTitles, setSectionTitles] = useState<Record<string, string>>(
     {},
   );
+
+  // 강의 수정 Dialog 상태
+  const [editLecture, setEditLecture] = useState<Lecture | null>(null);
+  const [isEditLectureDialogOpen, setIsEditLectureDialogOpen] = useState(false);
 
   // 코스 데이터 조회
   const { data: course } = useQuery<Course>({
@@ -77,7 +82,7 @@ const UI = ({ initialCourse }: Props) => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["courses", initialCourse.id],
+        queryKey: ["course", initialCourse.id],
       });
       toast.success("섹션이 생성되었습니다.");
     },
@@ -176,8 +181,6 @@ const UI = ({ initialCourse }: Props) => {
 
   const handleDeleteSection = (sectionId: string) => {
     deletedSectionMutation.mutate(sectionId);
-    setAddLectureTitle("");
-    setLectureDialogOpen(true);
   };
 
   const openLectureDialog = (sectionId: string) => {
@@ -228,9 +231,11 @@ const UI = ({ initialCourse }: Props) => {
 
   if (!course) return <div>코스 정보를 불러올 수 없습니다.</div>;
 
+  console.log(course);
+
   return (
-    <div className="space-y-8">
-      <Card>
+    <div className="flex flex-col items-center space-y-8">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>
             <h1 className="text-2xl font-bold">커리큘럼</h1>
@@ -239,7 +244,7 @@ const UI = ({ initialCourse }: Props) => {
       </Card>
 
       {course.sections?.map((section: Section, sectionIdx: number) => (
-        <div key={section.id} className="rounded-lg border bg-white p-4">
+        <div key={section.id} className="w-full rounded-lg border bg-white p-4">
           <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-green-600">
@@ -305,12 +310,13 @@ const UI = ({ initialCourse }: Props) => {
                       <LockIcon className="text-gray-400" size={18} />
                     )}
                   </Button>
-                  {/* 수정 버튼 추가 */}
+
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => {
-                      /* TODO: 강의 수정 모달 오픈 */
+                      setEditLecture(lecture);
+                      setIsEditLectureDialogOpen(true);
                     }}
                     aria-label="강의 수정"
                   >
@@ -329,11 +335,12 @@ const UI = ({ initialCourse }: Props) => {
               </div>
             ))}
           </div>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex w-full justify-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => openLectureDialog(section.id)}
+              className="bg-gray-50"
             >
               <PlusIcon size={16} className="mr-1" /> 수업 추가
             </Button>
@@ -341,21 +348,14 @@ const UI = ({ initialCourse }: Props) => {
         </div>
       ))}
       {/* 섹션 추가 */}
-      <div className="rounded-lg border bg-gray-50 p-4">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="font-semibold text-green-600">섹션 추가</span>
-          <Input
-            className="w-64"
-            value={addSectionTitle}
-            onChange={(e) => setAddSectionTitle(e.target.value)}
-            placeholder="섹션 제목을 작성해주세요. (최대 200자)"
-            maxLength={200}
-          />
-          <Button onClick={handleAddSection} variant="default" size="sm">
-            추가
-          </Button>
-        </div>
-      </div>
+      <Button
+        variant="default"
+        size="lg"
+        className="text-md mx-auto font-bold"
+        onClick={handleAddSection}
+      >
+        섹션 추가
+      </Button>
 
       {/* 강의 추가 Dialog */}
       <Dialog open={lectureDialogOpen} onOpenChange={setLectureDialogOpen}>
@@ -382,6 +382,18 @@ const UI = ({ initialCourse }: Props) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 강의 수정 Dialog */}
+      {editLecture && (
+        <EditLectureDialog
+          isOpen={isEditLectureDialogOpen}
+          onClose={() => {
+            setIsEditLectureDialogOpen(false);
+            setEditLecture(null);
+          }}
+          lecture={editLecture}
+        />
+      )}
     </div>
   );
 };

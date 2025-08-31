@@ -1,3 +1,4 @@
+import UI from "./ui";
 import * as api from "@/lib/api";
 import { notFound } from "next/navigation";
 
@@ -13,5 +14,9 @@ export default async function EditCurriculumPage({ params }: Props) {
     notFound();
   }
 
-  return <></>;
+  return (
+    <>
+      <UI initialCourse={course.data} />
+    </>
+  );
 }
