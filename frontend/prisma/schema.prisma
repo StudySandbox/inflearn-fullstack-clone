@@ -84,7 +84,6 @@ model Course {
   level            String  @default("BEGINNER")
   status           String  @default("DRAFT")
   description      String? @map("description")
-  isPublished      Boolean @default(false) @map("is_published")
   instructorId     String  @map("instructor_id")
   thumbnailUrl     String? @map("thumbnail_url")
   discountPrice    Int?    @map("discount_price")
