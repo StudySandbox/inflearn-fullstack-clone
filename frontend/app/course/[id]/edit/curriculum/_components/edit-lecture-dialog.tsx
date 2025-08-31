@@ -1,24 +1,27 @@
 "use client";
 
+import { toast } from "sonner";
 import { useDropzone } from "react-dropzone";
+import { FileVideoIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Lecture } from "@/generated/openapi-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { cn } from "@/lib/utils";
 import * as api from "@/lib/api";
-import { toast } from "sonner";
+
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { FileVideoIcon } from "lucide-react";
-import CKEditor from "@/components/ckeditor";
-import { Button } from "@/components/ui/button";
+import dynamic from "next/dynamic";
+
+const CKEditor = dynamic(() => import("@/components/ckeditor"), { ssr: false });
 
 interface EditorLectureDialogProps {
   isOpen: boolean;
@@ -101,7 +104,7 @@ export const EditLectureDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="max-h-[80vh] overflow-auto sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>강의 수정</DialogTitle>
         </DialogHeader>
@@ -170,7 +173,7 @@ export const EditLectureDialog = ({
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" type="button">
+            <Button variant="outline" type="button" onClick={onClose}>
               취소
             </Button>
 
