@@ -1,4 +1,3 @@
-import slugfy from 'slug';
 import { Course, Prisma } from '@prisma/client';
 import {
   Injectable,
@@ -6,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
+import slugify from 'lib/slugify';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -22,7 +22,7 @@ export class CoursesService {
     return this.prisma.course.create({
       data: {
         title: createCourseDto.title,
-        slug: slugfy(createCourseDto.title),
+        slug: slugify(createCourseDto.title),
         instructorId: userId,
         status: 'DRAFT',
       },

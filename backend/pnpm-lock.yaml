@@ -59,9 +59,6 @@ importers:
       rxjs:
         specifier: ^7.8.1
         version: 7.8.2
-      slug:
-        specifier: ^11.0.0
-        version: 11.0.0
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
@@ -3671,10 +3668,6 @@ packages:
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
-
-  slug@11.0.0:
-    resolution: {integrity: sha512-71pb27F9TII2dIweGr2ybS220IUZo1A9GKZ+e2q8rpUr24mejBb6fTaSStM0SE1ITUUOshilqZze8Yt1BKj+ew==}
-    hasBin: true
 
   snake-case@3.0.4:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
@@ -8575,8 +8568,6 @@ snapshots:
   sisteransi@1.0.5: {}
 
   slash@3.0.0: {}
-
-  slug@11.0.0: {}
 
   snake-case@3.0.4:
     dependencies:
