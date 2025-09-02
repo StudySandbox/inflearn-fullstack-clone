@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  UpdateUserDto,
   UpdateCourseDto,
   UpdateLectureDto,
   coursesControllerCreate,
@@ -15,6 +16,8 @@ import {
   lecturesControllerUpdate,
   categoriesControllerFindAll,
   mediaControllerUploadMedia,
+  usersControllerGetProfile,
+  usersControllerUpdateProfile,
 } from "@/generated/openapi-client";
 
 // 카테고리 가져오기
@@ -172,6 +175,20 @@ export const uploadMedia = async (file: File) => {
     body: {
       file,
     },
+  });
+
+  return { data, error };
+};
+
+export const getProfile = async () => {
+  const { data, error } = await usersControllerGetProfile();
+
+  return { data, error };
+};
+
+export const updateProfile = async (updateUserDto: UpdateUserDto) => {
+  const { data, error } = await usersControllerUpdateProfile({
+    body: updateUserDto,
   });
 
   return { data, error };

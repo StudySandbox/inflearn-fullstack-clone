@@ -7,14 +7,21 @@ import { LayersIcon, SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CourseCategory } from "@/generated/openapi-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
-export default function SiteHeader({
-  categories,
-}: {
+import { CourseCategory, User } from "@/generated/openapi-client";
+
+interface Props {
+  profile?: User;
   categories: CourseCategory[];
-}) {
+}
+
+export default function SiteHeader({ profile, categories }: Props) {
   const pathname = usePathname();
   const isSiteHeaderNeeded = !pathname.includes("/course/");
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
@@ -78,15 +85,42 @@ export default function SiteHeader({
             지식공유자
           </Button>
         </Link>
-        {/* Avatar */}
-        <Avatar className="ml-2">
-          <AvatarFallback>
-            <span role="img" aria-label="user">
-              👤
-            </span>
-          </AvatarFallback>
-        </Avatar>
+
+        {/* Avatar + Popover */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="ml-2 cursor-pointer">
+              <Avatar>
+                {profile?.image ? (
+                  <img
+                    src={profile.image}
+                    alt="avatar"
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <AvatarFallback>
+                    <span role="img" aria-label="user">
+                      👤
+                    </span>
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </div>
+          </PopoverTrigger>
+
+          <PopoverContent align="end" className="w-56 p-0">
+            <button
+              className="w-full px-4 py-3 text-left hover:bg-gray-100 focus:outline-none"
+              onClick={() => (window.location.href = "/my/settings/account")}
+            >
+              <div className="font-semibold text-gray-800">
+                {profile?.name || profile?.email || "내 계정"}
+              </div>
+            </button>
+          </PopoverContent>
+        </Popover>
       </div>
+
       {/* 하단 카테고리 */}
       <div className="header-bottom bg-white px-8">
         {isCategoryNeeded && (
