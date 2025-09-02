@@ -10,6 +10,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { SearchCourseDto } from './dto/search-course.dto';
+import { SearchCourseResponseDto } from './dto/search-response.dto';
 
 @Injectable()
 export class CoursesService {
@@ -115,5 +117,109 @@ export class CoursesService {
     });
 
     return course;
+  }
+
+  async searchCourses(
+    searchCourseDto: SearchCourseDto,
+  ): Promise<SearchCourseResponseDto> {
+    const { q, category, priceRange, sortBy, order, page, pageSize } =
+      searchCourseDto;
+    const where: Prisma.CourseWhereInput = {};
+
+    if (q) {
+      where.OR = [
+        // title에 포함된 키워드
+        {
+          title: {
+            contains: q,
+            mode: 'insensitive',
+          },
+        },
+
+        // instructor(지식공유자) 이름이 포함된 키워드
+        {
+          instructor: {
+            name: {
+              contains: q,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
+
+    if (category) {
+      where.categories = {
+        some: {
+          id: category,
+        },
+      };
+    }
+
+    if (priceRange) {
+      const priceConditions: Prisma.IntFilter = {};
+      if (priceRange.min !== undefined) {
+        priceConditions.gte = priceRange.min;
+      }
+
+      if (priceRange.max !== undefined) {
+        priceConditions.lte = priceRange.max;
+      }
+
+      if (Object.keys(priceConditions).length > 0) {
+        where.price = priceConditions;
+      }
+    }
+
+    const orderBy: Prisma.CourseOrderByWithRelationInput = {};
+
+    if (sortBy === 'price') {
+      orderBy.price = order as 'asc' | 'desc';
+    } else {
+      // 기본 정렬: 생성일 기준 내림차순
+      orderBy.createdAt = 'desc';
+    }
+
+    const currentPage = page || 1;
+    const currentPageSize = pageSize || 20;
+    const skip = (currentPage - 1) * currentPageSize;
+    const totalItems = await this.prisma.course.count({ where });
+    const courses = await this.prisma.course.findMany({
+      where,
+      orderBy,
+      skip,
+      take: currentPageSize,
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        categories: true,
+        _count: {
+          select: {
+            enrollments: true,
+            reviews: true,
+          },
+        },
+      },
+    });
+
+    const totalPages = Math.ceil(totalItems / currentPageSize);
+
+    return {
+      success: true,
+      data: {
+        courses: courses as any[],
+        pagination: {
+          currentPage,
+          totalPages,
+          totalItems,
+          hasNext: currentPage < totalPages,
+          hasPrev: currentPage > 1,
+        },
+      },
+    };
   }
 }

@@ -26,6 +26,8 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { SearchCourseResponseDto } from './dto/search-response.dto';
+import { SearchCourseDto } from './dto/search-course.dto';
 
 @ApiTags('강의')
 @Controller('courses')
@@ -178,5 +180,14 @@ export class CoursesController {
   delete(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
     if (!req.user) return;
     return this.coursesService.delete(id, req.user.sub);
+  }
+
+  @Post('search')
+  @ApiOkResponse({
+    description: '강의 검색',
+    type: SearchCourseResponseDto,
+  })
+  search(@Body() searchCourseDto: SearchCourseDto) {
+    return this.coursesService.searchCourses(searchCourseDto);
   }
 }
