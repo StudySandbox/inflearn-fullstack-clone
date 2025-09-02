@@ -34,7 +34,7 @@ export default function SiteHeader({ session, profile, categories }: Props) {
   if (!isSiteHeaderNeeded) return null;
 
   return (
-    <header className="site-header mx-auto w-7xl border-b bg-white">
+    <header className="site-header relative mx-auto w-7xl bg-white">
       {/* 상단 헤더 */}
       <div className="header-top flex items-center justify-between gap-4 px-8 py-3">
         {/* 로고 */}
@@ -64,9 +64,10 @@ export default function SiteHeader({ session, profile, categories }: Props) {
             커뮤니티
           </Link>
         </nav>
+
         {/* 검색창 + 아이콘 */}
         <div className="flex flex-1 justify-center">
-          <div className="relative flex w-full max-w-xl items-center">
+          <div className="relative flex w-full items-center">
             <Input
               type="text"
               placeholder="나의 진짜 성장을 도와줄 실무 강의를 찾아보세요"
@@ -154,9 +155,9 @@ export default function SiteHeader({ session, profile, categories }: Props) {
       </div>
 
       {/* 하단 카테고리 */}
-      <div className="header-bottom bg-white px-8">
+      <div className="header-bottom category-nav flex justify-between gap-6 bg-white px-8">
         {isCategoryNeeded && (
-          <nav className="category-nav scrollbar-none flex gap-6 overflow-x-auto py-4">
+          <nav className="category-nav scrollbar-none flex justify-between gap-6 overflow-x-auto py-4">
             {categories.map((category) => (
               <Link key={category.id} href={`/courses/${category.slug}`}>
                 <div className="category-item flex min-w-[72px] cursor-pointer flex-col items-center text-gray-700 transition-colors hover:text-[#1dc078]">
@@ -173,6 +174,7 @@ export default function SiteHeader({ session, profile, categories }: Props) {
           </nav>
         )}
       </div>
+      <div className="absolute bottom-0 left-1/2 w-screen -translate-x-1/2 border-b" />
     </header>
   );
 }

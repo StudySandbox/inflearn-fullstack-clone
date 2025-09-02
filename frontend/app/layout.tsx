@@ -38,7 +38,7 @@ export default async function RootLayout({
     <html lang="ko">
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} mx-auto max-w-7xl antialiased`}
       >
         <Providers>
           <SiteHeader

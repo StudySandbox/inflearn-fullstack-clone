@@ -1,4 +1,5 @@
 import { Course, Prisma } from '@prisma/client';
+
 import {
   Injectable,
   NotFoundException,
@@ -209,16 +210,15 @@ export class CoursesService {
     const totalPages = Math.ceil(totalItems / currentPageSize);
 
     return {
-      success: true,
-      data: {
-        courses: courses as any[],
-        pagination: {
-          currentPage,
-          totalPages,
-          totalItems,
-          hasNext: currentPage < totalPages,
-          hasPrev: currentPage > 1,
-        },
+      // TODO:type error 수정하기
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      courses: courses as any[],
+      pagination: {
+        currentPage,
+        totalPages,
+        totalItems,
+        hasNext: currentPage < totalPages,
+        hasPrev: currentPage > 1,
       },
     };
   }
