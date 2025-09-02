@@ -1,39 +1,24 @@
 import Link from "next/link";
-import { signOut } from "@/auth";
+import { Metadata } from "next";
 
-import { auth } from "@/auth";
+import { signOut, auth } from "@/auth";
+
+export const metadata: Metadata = {
+  title: "인프런 - 라이프타임 커리어 플랫폼",
+  description: "인프런은 라이프타임 커리어 플랫폼입니다.",
+};
 
 export default async function Home() {
   const session = await auth();
 
   return (
-    <div>
-      <p>로그인 된 유저 정보</p>
-      <p>이메일: {session?.user?.email}</p>
-
-      {/* 로그아웃 */}
-      {session?.user ? (
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
-          }}
-        >
-          <button
-            type="submit"
-            className="cursor-pointer rounded-sm bg-red-200 px-2"
-          >
-            로그아웃
-          </button>
-        </form>
-      ) : (
-        <Link
-          href="/signin"
-          className="cursor-pointer underline-offset-1 hover:underline"
-        >
-          로그인
-        </Link>
-      )}
+    <div className="flex min-h-[60vh] flex-col items-center justify-center bg-white">
+      <span className="mb-4 text-6xl" style={{ color: "#00C471" }}>
+        🎉
+      </span>
+      <h1 className="mb-2 text-3xl font-bold" style={{ color: "#00C471" }}>
+        Part 2
+      </h1>
     </div>
   );
 }

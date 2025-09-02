@@ -1,9 +1,12 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
+import { SearchIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { LayersIcon, SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,14 +19,14 @@ import {
 
 import { CourseCategory, User } from "@/generated/openapi-client";
 import { CATEGORY_ICONS } from "@/app/constants/category-icons";
-import React from "react";
 
 interface Props {
+  session: Session | null;
   profile?: User;
   categories: CourseCategory[];
 }
 
-export default function SiteHeader({ profile, categories }: Props) {
+export default function SiteHeader({ session, profile, categories }: Props) {
   const pathname = usePathname();
   const isSiteHeaderNeeded = !pathname.includes("/course/");
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
@@ -89,38 +92,65 @@ export default function SiteHeader({ profile, categories }: Props) {
         </Link>
 
         {/* Avatar + Popover */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <div className="ml-2 cursor-pointer">
-              <Avatar>
-                {profile?.image ? (
-                  <img
-                    src={profile.image}
-                    alt="avatar"
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  <AvatarFallback>
-                    <span role="img" aria-label="user">
-                      👤
-                    </span>
-                  </AvatarFallback>
-                )}
-              </Avatar>
-            </div>
-          </PopoverTrigger>
-
-          <PopoverContent align="end" className="w-56 p-0">
-            <button
-              className="w-full px-4 py-3 text-left hover:bg-gray-100 focus:outline-none"
-              onClick={() => (window.location.href = "/my/settings/account")}
+        {!session ? (
+          /* 세션이 없다면 로그인 버튼 */
+          <Link href="/signin">
+            <Button
+              variant="outline"
+              className="ml-2 border-gray-200 font-semibold hover:border-[#1dc078] hover:text-[#1dc078]"
             >
-              <div className="font-semibold text-gray-800">
-                {profile?.name || profile?.email || "내 계정"}
+              로그인
+            </Button>
+          </Link>
+        ) : (
+          /* 세션이 있다면 Popover */
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className="ml-2 cursor-pointer">
+                <Avatar>
+                  {profile?.image ? (
+                    <img
+                      src={profile.image}
+                      alt="avatar"
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <AvatarFallback>
+                      <span role="img" aria-label="user">
+                        👤
+                      </span>
+                    </AvatarFallback>
+                  )}
+                </Avatar>
               </div>
-            </button>
-          </PopoverContent>
-        </Popover>
+            </PopoverTrigger>
+
+            <PopoverContent align="end" className="w-56 p-0">
+              <div className="border-b border-gray-100 px-4 py-3">
+                <div className="font-semibold text-gray-800">
+                  {profile?.name || profile?.email || "내 계정"}
+                </div>
+                {profile?.email && (
+                  <div className="mt-1 text-xs text-gray-500">
+                    {profile.email}
+                  </div>
+                )}
+              </div>
+              <button
+                className="w-full px-4 py-3 text-left hover:bg-gray-100 focus:outline-none"
+                onClick={() => (window.location.href = "/my/settings/account")}
+              >
+                <div className="font-semibold text-gray-800">프로필 수정</div>
+              </button>
+              <button
+                className="w-full border-t border-gray-100 px-4 py-3 text-left hover:bg-gray-100 focus:outline-none"
+                onClick={() => signOut()}
+              >
+                <div>로그아웃</div>
+              </button>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       {/* 하단 카테고리 */}
