@@ -2,11 +2,13 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
-import slugify from 'lib/slugify';
+import slugify from '../lib/slugify';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.$connect();
+
   // 1. 기존 유저 존재 여부 체크
   const existingUser = await prisma.user.findFirst();
   if (!existingUser) {
