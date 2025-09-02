@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/popover";
 
 import { CourseCategory, User } from "@/generated/openapi-client";
+import { CATEGORY_ICONS } from "@/app/constants/category-icons";
+import React from "react";
 
 interface Props {
   profile?: User;
@@ -128,7 +130,10 @@ export default function SiteHeader({ profile, categories }: Props) {
             {categories.map((category) => (
               <Link key={category.id} href={`/courses/${category.slug}`}>
                 <div className="category-item flex min-w-[72px] cursor-pointer flex-col items-center text-gray-700 transition-colors hover:text-[#1dc078]">
-                  <LayersIcon size={28} className="mb-1" />
+                  {React.createElement(
+                    CATEGORY_ICONS[category.slug] || CATEGORY_ICONS["default"],
+                    { size: 28, className: "mb-1" },
+                  )}
                   <span className="text-xs font-medium whitespace-nowrap">
                     {category.name}
                   </span>
