@@ -88,7 +88,7 @@ export default function SiteHeader({ session, profile, categories }: Props) {
               type="button"
               className="absolute right-2 p-1 text-gray-400 transition-colors hover:text-[#1dc078]"
               tabIndex={-1}
-              onClick={() => router.push(`/search?q=${search}`)}
+              onClick={() => router.push(`/search?q=${search.trim()}`)}
             >
               <SearchIcon size={20} />
             </button>
