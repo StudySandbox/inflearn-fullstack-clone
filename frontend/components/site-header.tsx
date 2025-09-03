@@ -32,7 +32,9 @@ export default function SiteHeader({ session, profile, categories }: Props) {
 
   const [search, setSearch] = useState("");
 
-  const isSiteHeaderNeeded = !pathname.includes("/course/");
+  const isSiteHeaderNeeded = !pathname.match(
+    /^\/course\/[0-9a-f-]+(\/edit|\/edit\/.*)$/,
+  );
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
 
   if (!isSiteHeaderNeeded) return null;

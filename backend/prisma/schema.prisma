@@ -66,6 +66,7 @@ model User {
   courseReviews     CourseReview[]
   courseComments    CourseComment[]
   courseQuestions   CourseQuestion[]
+  courseFavorites   CourseFavorite[]
   lectureActivities LectureActivity[]
   courseEnrollments CourseEnrollment[]
 
@@ -101,6 +102,7 @@ model Course {
   sections    Section[]
   lectures    Lecture[]
   reviews     CourseReview[]
+  favorites   CourseFavorite[]
   questions   CourseQuestion[]
   categories  CourseCategory[]
   enrollments CourseEnrollment[]
@@ -251,4 +253,18 @@ model LectureActivity {
 
   @@unique([userId, lectureId])
   @@map("lecture_activities")
+}
+
+// 즐겨찾기
+model CourseFavorite {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  courseId  String   @map("course_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("course_favorites")
 }

@@ -16,7 +16,7 @@ interface Props {
 
 const CourseDetailUI = ({ course }: Props) => {
   return (
-    <div className="lg:bg-12 mx-auto px-4 py-12 pb-24">
+    <div className="lg:bg-12 mx-auto px-4 pb-24">
       <Header course={course} />
 
       <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_auto]">

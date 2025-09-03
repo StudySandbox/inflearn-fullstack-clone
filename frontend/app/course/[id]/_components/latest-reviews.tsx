@@ -50,7 +50,7 @@ export const LatestReviews = ({ reviews }: Props) => {
                     alt={review.user.name || "user"}
                     width={24}
                     height={24}
-                    className="rounded-full object-cover"
+                    className="aspect-square rounded-full object-cover"
                   />
                 )}
 

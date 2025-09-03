@@ -20,15 +20,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
+import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
+import { CourseFavorite as CourseFavoriteEntity } from 'src/_gen/prisma-class/course_favorite';
 
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { SearchCourseDto } from './dto/search-course.dto';
 import { CourseDetailDto } from './dto/course-detail.dto';
+import { GetFavoriteResponseDto } from './dto/favorite.dto';
 import { SearchCourseResponseDto } from './dto/search-response.dto';
+import { OptionalAccessTokenGuard } from 'src/auth/guards/optional-access-token.guard';
 
 @ApiTags('강의')
 @Controller('courses')
@@ -145,5 +148,44 @@ export class CoursesController {
   })
   search(@Body() searchCourseDto: SearchCourseDto) {
     return this.coursesService.searchCourses(searchCourseDto);
+  }
+
+  // 즐겨찾기 등록
+  @Post(':id/favorite')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({ type: Boolean })
+  addFavorite(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    if (!req.user) return;
+    return this.coursesService.addFavorite(id, req.user.sub);
+  }
+
+  // 즐겨찾기 삭제
+  @Delete(':id/favorite')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({ type: Boolean })
+  removeFavorite(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    if (!req.user) return;
+    return this.coursesService.removeFavorite(id, req.user.sub);
+  }
+
+  // 개별 강의 즐겨찾기 조회
+  @Get(':id/favorite')
+  @UseGuards(OptionalAccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({ type: GetFavoriteResponseDto })
+  getFavorite(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.coursesService.getFavorite(id, req.user?.sub);
+  }
+
+  // 나의 모든 즐겨찾기 조회
+  @Get('favorites/my')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({ type: CourseFavoriteEntity, isArray: true })
+  getMyFavorites(@Req() req: Request) {
+    if (!req.user) return;
+    return this.coursesService.getMyFavorites(req.user.sub);
   }
 }

@@ -27,7 +27,7 @@ export const ReviewsSection = ({ reviews }: Props) => {
                   alt={review.user.name || "user"}
                   width={40}
                   height={40}
-                  className="rounded-full object-cover"
+                  className="aspect-square rounded-full object-cover"
                 />
               )}
 
