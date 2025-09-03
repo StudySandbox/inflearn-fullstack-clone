@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Session } from "next-auth";
+import React, { useState } from "react";
 import { signOut } from "next-auth/react";
 import { SearchIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,11 @@ interface Props {
 }
 
 export default function SiteHeader({ session, profile, categories }: Props) {
+  const router = useRouter();
   const pathname = usePathname();
+
+  const [search, setSearch] = useState("");
+
   const isSiteHeaderNeeded = !pathname.includes("/course/");
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
 
@@ -72,11 +76,19 @@ export default function SiteHeader({ session, profile, categories }: Props) {
               type="text"
               placeholder="나의 진짜 성장을 도와줄 실무 강의를 찾아보세요"
               className="w-full border-gray-200 bg-gray-50 pr-10 focus-visible:ring-[#1dc078]"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  router.push(`/search?q=${search.trim()}`);
+                }
+              }}
             />
             <button
               type="button"
               className="absolute right-2 p-1 text-gray-400 transition-colors hover:text-[#1dc078]"
               tabIndex={-1}
+              onClick={() => router.push(`/search?q=${search}`)}
             >
               <SearchIcon size={20} />
             </button>
