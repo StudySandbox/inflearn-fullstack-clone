@@ -1,8 +1,8 @@
 // 시드 파일
 
-import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
 import slugify from '../lib/slugify';
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -472,7 +472,7 @@ async function main() {
   for (const course of courses) {
     // 섹션 생성
     const sectionData = generateRandomSectionData();
-    const createdSections = [];
+    const createdSections = [] as any[];
 
     for (const section of sectionData) {
       const createdSection = await prisma.section.create({
@@ -544,7 +544,6 @@ async function main() {
   );
 }
 
-// 위에 작성한 함수 main 실행
 main()
   .catch((error) => {
     console.error('시드 데이터 생성 중 오류가 발생했습니다', error);
