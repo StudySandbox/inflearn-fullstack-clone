@@ -12,10 +12,11 @@ import { Section as SectionEntity } from "@/generated/openapi-client";
 import { LectureRow } from "./lecture-row";
 
 interface Props {
+  courseId: string;
   sections: SectionEntity[];
 }
 
-export const Curriculum = ({ sections }: Props) => {
+export const Curriculum = ({ courseId, sections }: Props) => {
   return (
     <section id="curriculum" className="mt-12">
       <h2 className="mb-6 text-2xl font-bold">커리큘럼</h2>
@@ -42,6 +43,7 @@ export const Curriculum = ({ sections }: Props) => {
                     .map((lecture, idx) => (
                       <LectureRow
                         key={lecture.id}
+                        courseId={courseId}
                         lecture={lecture}
                         className={cn(
                           "h-12",

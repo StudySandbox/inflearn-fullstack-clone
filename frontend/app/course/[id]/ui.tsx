@@ -1,5 +1,7 @@
 "use client";
 
+import { User } from "next-auth";
+
 import { CourseDetailDto } from "@/generated/openapi-client";
 
 import { Header } from "./_components/header";
@@ -9,7 +11,6 @@ import { FloatingMenu } from "./_components/floating-menu";
 import { InstructorBio } from "./_components/instructor-bio";
 import { ReviewsSection } from "./_components/review-section";
 import { MobileBottomBar } from "./_components/mobile-bottom-bar";
-import { User } from "next-auth";
 
 interface Props {
   course: CourseDetailDto;
@@ -26,7 +27,7 @@ const CourseDetailUI = ({ course, user }: Props) => {
         <div className="max-w-3xl">
           <Introduction course={course} />
           <InstructorBio instructor={course.instructor} />
-          <Curriculum sections={course.sections} />
+          <Curriculum courseId={course.id} sections={course.sections} />
           <ReviewsSection reviews={course.reviews} />
         </div>
 

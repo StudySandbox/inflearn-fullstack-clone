@@ -1,5 +1,7 @@
 // 초 -> xx:xx(분:초) 전환
 export const formatSecondsToMinSec = (seconds: number) => {
+  if (!seconds) return "00:00";
+
   const minutes = Math.floor(seconds / 60)
     .toString()
     .padStart(2, "0");
@@ -9,6 +11,18 @@ export const formatSecondsToMinSec = (seconds: number) => {
     .padStart(2, "0");
 
   return `${minutes}:${remainingSeconds}`;
+};
+
+// 초 -> xx:xx:xx (시:분:초) 전환
+export const formatTime = (seconds: number) => {
+  if (!seconds || isNaN(seconds)) return "00:00";
+  const hours = Math.floor(seconds / (60 * 60));
+  const remainingMinutes = Math.floor((seconds % (60 * 60)) / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  const formatter = (time: number) => time.toString().padStart(2, "0");
+  return hours > 0
+    ? `${formatter(hours)}:${formatter(remainingMinutes)}:${formatter(remainingSeconds)}`
+    : `${formatter(remainingMinutes)}:${formatter(remainingSeconds)}`;
 };
 
 // 초 -> x시간 x분 전환
