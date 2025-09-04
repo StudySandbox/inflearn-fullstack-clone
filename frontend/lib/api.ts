@@ -8,7 +8,6 @@ import {
   coursesControllerCreate,
   coursesControllerUpdate,
   coursesControllerFindOne,
-  coursesControllerFindAll,
   sectionsControllerCreate,
   sectionsControllerDelete,
   lecturesControllerCreate,
@@ -22,9 +21,10 @@ import {
   usersControllerUpdateProfile,
   coursesControllerAddFavorite,
   coursesControllerGetFavorite,
+  coursesControllerEnrollCourse,
   coursesControllerRemoveFavorite,
   coursesControllerGetMyFavorites,
-  coursesControllerEnrollCourse,
+  coursesControllerFindAllMyCourses,
 } from "@/generated/openapi-client";
 
 // 카테고리 가져오기
@@ -36,7 +36,7 @@ export const getAllCategories = async () => {
 
 // 생성한 강의 리스트 조회
 export const getAllInstructorCourses = async () => {
-  const { data, error } = await coursesControllerFindAll();
+  const { data, error } = await coursesControllerFindAllMyCourses();
 
   return { data, error };
 };

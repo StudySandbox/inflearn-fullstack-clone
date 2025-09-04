@@ -1,5 +1,4 @@
 import { Request } from 'express';
-import { Prisma } from '@prisma/client';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -22,6 +21,7 @@ import {
 
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
+import { OptionalAccessTokenGuard } from 'src/auth/guards/optional-access-token.guard';
 import { CourseFavorite as CourseFavoriteEntity } from 'src/_gen/prisma-class/course_favorite';
 
 import { CoursesService } from './courses.service';
@@ -31,7 +31,6 @@ import { SearchCourseDto } from './dto/search-course.dto';
 import { CourseDetailDto } from './dto/course-detail.dto';
 import { GetFavoriteResponseDto } from './dto/favorite.dto';
 import { SearchCourseResponseDto } from './dto/search-response.dto';
-import { OptionalAccessTokenGuard } from 'src/auth/guards/optional-access-token.guard';
 
 @ApiTags('강의')
 @Controller('courses')
@@ -52,46 +51,25 @@ export class CoursesController {
 
   // @ApiQuery는 Swagger를 위한 데코레이터
   @Get()
-  @ApiQuery({ name: 'title', required: false })
-  @ApiQuery({ name: 'level', required: false })
-  @ApiQuery({ name: 'categoryId', required: false })
   @ApiQuery({ name: 'skip', required: false })
   @ApiQuery({ name: 'take', required: false })
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
   @ApiOkResponse({
     description: '강의 목록',
     type: CourseEntity,
     isArray: true,
   })
-  findAll(
-    @Query('title') title?: string,
-    @Query('level') level?: string,
-    @Query('categoryId') categoryId?: string,
+  findAllMyCourses(
+    @Req() req: Request,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
   ) {
-    const where: Prisma.CourseWhereInput = {};
-
-    if (title) {
-      // title을 포함하는 모든 강의를 가져온다는 의미
-      where.title = { contains: title, mode: 'insensitive' };
-    }
-
-    if (level) {
-      // level에 해당하는 모든 강의를 가져온다는 의미
-      where.level = level;
-    }
-
-    if (categoryId) {
-      // 선택한 카테고리에 해당하는 모든 강의를 가져온다는 의미
-      where.categories = {
-        some: {
-          id: categoryId,
-        },
-      };
-    }
-
+    if (!req.user) return;
     return this.coursesService.findAll({
-      where,
+      where: {
+        instructorId: req.user.sub,
+      },
       skip: skip ? parseInt(skip) : undefined,
       take: take ? parseInt(take) : undefined,
       orderBy: {
