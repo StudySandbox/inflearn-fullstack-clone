@@ -1,23 +1,69 @@
 "use client";
 
-import { Course } from "@/generated/openapi-client";
-import { Heart, ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { getLevelText } from "@/lib/level";
+import { User } from "next-auth";
 import { useRouter } from "next/navigation";
+import { HeartIcon, ShoppingCart } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import * as api from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { getLevelText } from "@/lib/level";
+import { Button } from "@/components/ui/button";
+import { Course as CourseEntity } from "@/generated/openapi-client";
 
 interface CourseCardProps {
-  course: Course;
+  user?: User;
+  course: CourseEntity;
 }
 
-export default function CourseCard({ course }: CourseCardProps) {
+export default function CourseCard({ user, course }: CourseCardProps) {
   const router = useRouter();
+  const getMyFavoritesQuery = useQuery({
+    queryKey: ["my-favorites", user?.id],
+    queryFn: async () => {
+      if (user) {
+        return api.getMyFavorite();
+      }
+
+      return null;
+    },
+  });
+
+  const isFavorite = getMyFavoritesQuery.data?.data?.find(
+    (favorite) => favorite.courseId === course.id,
+  );
+
+  const addFavoriteMutation = useMutation({
+    mutationFn: () => api.addFavorite(course.id),
+    onSuccess: () => {
+      getMyFavoritesQuery.refetch();
+    },
+  });
+
+  const removeFavoriteMutation = useMutation({
+    mutationFn: () => {
+      return api.removeFavorite(course.id);
+    },
+    onSuccess: () => {
+      getMyFavoritesQuery.refetch();
+    },
+  });
+
+  const isFavoriteDisabled =
+    addFavoriteMutation.isPending || removeFavoriteMutation.isPending;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    alert("구현 예정");
+
+    if (!user) return alert("로그인 후 이용하세요.");
+
+    if (isFavorite) {
+      removeFavoriteMutation.mutate();
+    } else {
+      addFavoriteMutation.mutate();
+    }
   };
 
   const handleCartClick = (e: React.MouseEvent) => {
@@ -59,7 +105,13 @@ export default function CourseCard({ course }: CourseCardProps) {
             className="h-8 w-8 p-0"
             onClick={handleFavoriteClick}
           >
-            <Heart className="h-4 w-4" />
+            <HeartIcon
+              className={cn(
+                "size-4 transition-colors",
+                isFavorite ? "fill-red-500 text-red-500" : "text-gray-500",
+                isFavoriteDisabled && "cursor-not-allowed",
+              )}
+            />
           </Button>
           <Button
             size="sm"

@@ -9,12 +9,14 @@ import { FloatingMenu } from "./_components/floating-menu";
 import { InstructorBio } from "./_components/instructor-bio";
 import { ReviewsSection } from "./_components/review-section";
 import { MobileBottomBar } from "./_components/mobile-bottom-bar";
+import { User } from "next-auth";
 
 interface Props {
   course: CourseDetailDto;
+  user?: User;
 }
 
-const CourseDetailUI = ({ course }: Props) => {
+const CourseDetailUI = ({ course, user }: Props) => {
   return (
     <div className="lg:bg-12 mx-auto px-4 pb-24">
       <Header course={course} />
@@ -29,7 +31,7 @@ const CourseDetailUI = ({ course }: Props) => {
         </div>
 
         {/* Floating menu */}
-        <FloatingMenu course={course} />
+        <FloatingMenu course={course} user={user} />
       </div>
 
       {/* 모바일 하단 바 */}

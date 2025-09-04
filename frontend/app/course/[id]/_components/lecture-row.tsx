@@ -1,11 +1,11 @@
 import { LockIcon, PlayCircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Lecture } from "@/generated/openapi-client";
 import { formatSecondsToMinSec } from "@/lib/formats";
+import { Lecture as LectureEntity } from "@/generated/openapi-client";
 
 interface Props {
-  lecture: Lecture;
+  lecture: LectureEntity;
   className?: string;
 }
 

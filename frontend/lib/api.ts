@@ -3,6 +3,7 @@
 import {
   UpdateUserDto,
   UpdateCourseDto,
+  SearchCourseDto,
   UpdateLectureDto,
   coursesControllerCreate,
   coursesControllerUpdate,
@@ -14,12 +15,15 @@ import {
   lecturesControllerDelete,
   sectionsControllerUpdate,
   lecturesControllerUpdate,
-  categoriesControllerFindAll,
-  mediaControllerUploadMedia,
-  usersControllerGetProfile,
-  usersControllerUpdateProfile,
-  SearchCourseDto,
   coursesControllerSearch,
+  usersControllerGetProfile,
+  mediaControllerUploadMedia,
+  categoriesControllerFindAll,
+  usersControllerUpdateProfile,
+  coursesControllerAddFavorite,
+  coursesControllerGetFavorite,
+  coursesControllerRemoveFavorite,
+  coursesControllerGetMyFavorites,
 } from "@/generated/openapi-client";
 
 // 카테고리 가져오기
@@ -197,6 +201,42 @@ export const searchCourses = async (searchCourseDto: SearchCourseDto) => {
   const { data, error } = await coursesControllerSearch({
     body: searchCourseDto,
   });
+
+  return { data, error };
+};
+
+export const addFavorite = async (courseId: string) => {
+  const { data, error } = await coursesControllerAddFavorite({
+    path: {
+      id: courseId,
+    },
+  });
+
+  return { data, error };
+};
+
+export const removeFavorite = async (courseId: string) => {
+  const { data, error } = await coursesControllerRemoveFavorite({
+    path: {
+      id: courseId,
+    },
+  });
+
+  return { data, error };
+};
+
+export const getFavorite = async (courseId: string) => {
+  const { data, error } = await coursesControllerGetFavorite({
+    path: {
+      id: courseId,
+    },
+  });
+
+  return { data, error };
+};
+
+export const getMyFavorite = async () => {
+  const { data, error } = await coursesControllerGetMyFavorites();
 
   return { data, error };
 };

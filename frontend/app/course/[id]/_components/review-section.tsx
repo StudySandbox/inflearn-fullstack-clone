@@ -1,13 +1,13 @@
 import Image from "next/image";
 
-import { CourseReview } from "@/generated/openapi-client";
+import { CourseReview as CourseReviewEntity } from "@/generated/openapi-client";
 
 import { formatDate } from "@/lib/formats";
 
 import { StarRating } from "./star-rating";
 
 interface Props {
-  reviews: CourseReview[];
+  reviews: CourseReviewEntity[];
 }
 
 export const ReviewsSection = ({ reviews }: Props) => {

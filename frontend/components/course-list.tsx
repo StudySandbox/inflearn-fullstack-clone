@@ -1,5 +1,3 @@
-import * as api from "@/lib/api";
-import { SearchCourseDto } from "@/generated/openapi-client";
 import {
   Pagination,
   PaginationContent,
@@ -9,6 +7,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+
+import { auth } from "@/auth";
+import * as api from "@/lib/api";
+import { SearchCourseDto } from "@/generated/openapi-client";
 
 import CourseCard from "./course-card";
 
@@ -26,6 +28,7 @@ const CourseList = async ({
   pageSize = 20,
   baseUrl = "",
 }: Props) => {
+  const session = await auth();
   const { data, error } = await api.searchCourses({
     q,
     category,
@@ -139,7 +142,7 @@ const CourseList = async ({
       {/* 강의 목록 Grid */}
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {data.courses.map((course) => (
-          <CourseCard key={course.id} course={course} />
+          <CourseCard key={course.id} course={course} user={session?.user} />
         ))}
       </div>
 

@@ -7,12 +7,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-import { Section } from "@/generated/openapi-client";
+import { Section as SectionEntity } from "@/generated/openapi-client";
 
 import { LectureRow } from "./lecture-row";
 
 interface Props {
-  sections: Section[];
+  sections: SectionEntity[];
 }
 
 export const Curriculum = ({ sections }: Props) => {

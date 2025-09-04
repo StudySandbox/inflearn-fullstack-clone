@@ -1,5 +1,6 @@
-import { User } from "@/generated/openapi-client";
 import Image from "next/image";
+
+import { User as UserEntity } from "@/generated/openapi-client";
 
 const mockInstructorStats = {
   students: 1234,
@@ -9,7 +10,7 @@ const mockInstructorStats = {
 };
 
 interface Props {
-  instructor: User;
+  instructor: UserEntity;
 }
 
 export const InstructorBio = ({ instructor }: Props) => {
