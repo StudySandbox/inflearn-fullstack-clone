@@ -2,6 +2,7 @@ import { Course, Prisma } from '@prisma/client';
 
 import {
   Injectable,
+  ConflictException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -55,7 +56,7 @@ export class CoursesService {
     });
   }
 
-  async findOne(id: string): Promise<CourseDetailDto | null> {
+  async findOne(id: string, userId?: string): Promise<CourseDetailDto | null> {
     const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
@@ -109,6 +110,15 @@ export class CoursesService {
       return null;
     }
 
+    const isEnrolled = userId
+      ? !!(await this.prisma.courseEnrollment.findFirst({
+          where: {
+            userId,
+            courseId: id,
+          },
+        }))
+      : false;
+
     const averageRating =
       course.reviews.length > 0
         ? course.reviews.reduce((sum, review) => sum + review.rating, 0) /
@@ -127,6 +137,7 @@ export class CoursesService {
 
     const result = {
       ...course,
+      isEnrolled,
       totalEnrollments: course._count.enrollments,
       averageRating: Math.round(averageRating * 10) / 10,
       totalReviews: course._count.reviews,
@@ -396,5 +407,32 @@ export class CoursesService {
     });
 
     return existingFavorite as unknown as CourseFavoriteEntity[];
+  }
+
+  async enrollCourse(courseId: string, userId: string): Promise<boolean> {
+    try {
+      const existingEnrollment = await this.prisma.courseEnrollment.findFirst({
+        where: {
+          userId,
+          courseId,
+        },
+      });
+
+      if (existingEnrollment) {
+        throw new ConflictException('이미 수강신청한 강의입니다.');
+      }
+
+      await this.prisma.courseEnrollment.create({
+        data: {
+          userId,
+          courseId,
+          enrolledAt: new Date(),
+        },
+      });
+
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }

@@ -104,12 +104,15 @@ export class CoursesController {
   // ParseUUIDPipe 는 Nest.js에서 기본제공하는 함수로
   // 값이 UUID인지를 검증하여 통과하면 UUID값을 가져옵니다.
   @Get(':id')
+  @UseGuards(OptionalAccessTokenGuard)
+  @ApiBearerAuth('access-token')
   @ApiOkResponse({
     description: '강의 상세 정보',
     type: CourseDetailDto,
   })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.coursesService.findOne(id);
+  findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    if (!req.user) return;
+    return this.coursesService.findOne(id, req.user.sub);
   }
 
   // 강의 수정
@@ -187,5 +190,15 @@ export class CoursesController {
   getMyFavorites(@Req() req: Request) {
     if (!req.user) return;
     return this.coursesService.getMyFavorites(req.user.sub);
+  }
+
+  // 강의 등록
+  @Post(':id/enroll')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({ type: Boolean })
+  enrollCourse(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    if (!req.user) return;
+    return this.coursesService.enrollCourse(id, req.user.sub);
   }
 }

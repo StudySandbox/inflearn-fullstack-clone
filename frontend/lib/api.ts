@@ -24,6 +24,7 @@ import {
   coursesControllerGetFavorite,
   coursesControllerRemoveFavorite,
   coursesControllerGetMyFavorites,
+  coursesControllerEnrollCourse,
 } from "@/generated/openapi-client";
 
 // 카테고리 가져오기
@@ -237,6 +238,16 @@ export const getFavorite = async (courseId: string) => {
 
 export const getMyFavorite = async () => {
   const { data, error } = await coursesControllerGetMyFavorites();
+
+  return { data, error };
+};
+
+export const enrollCourse = async (courseId: string) => {
+  const { data, error } = await coursesControllerEnrollCourse({
+    path: {
+      id: courseId,
+    },
+  });
 
   return { data, error };
 };
