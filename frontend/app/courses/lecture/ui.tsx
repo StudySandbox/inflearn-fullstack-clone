@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   CourseDetailDto,
+  LectureActivity as LectureActivityEntity,
   Lecture as LectureEntity,
 } from "@/generated/openapi-client";
 
@@ -13,27 +14,31 @@ import { Sidebar } from "./_components/sidebar";
 import { VideoPlayer } from "./_components/video-player";
 
 interface Props {
-  course: CourseDetailDto;
   lectureId?: string;
+  course: CourseDetailDto;
+  lectureActivities: LectureActivityEntity[];
 }
 
-const UI = ({ course, lectureId }: Props) => {
+const UI = ({ course, lectureId, lectureActivities }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const currentLectureId = lectureId ?? course.sections[0].lectures[0].id;
 
   const allLectures = useMemo(() => {
     return course.sections.flatMap((section) => section.lectures);
   }, [course.sections]);
 
   const currentLecture = useMemo(() => {
-    if (lectureId) {
-      const found = allLectures.find((lecture) => lecture.id === lectureId);
+    if (currentLectureId) {
+      const found = allLectures.find(
+        (lecture) => lecture.id === currentLectureId,
+      );
       if (found) return found;
     }
 
     // fallback to first lecture
     return allLectures[0];
-  }, [lectureId, allLectures]);
+  }, [currentLectureId, allLectures]);
 
   const handleSelectLecture = (lecture: LectureEntity) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -52,7 +57,12 @@ const UI = ({ course, lectureId }: Props) => {
     <div className="absolute top-0 left-1/2 flex h-screen w-screen -translate-x-1/2 bg-black">
       {/* Video area */}
       <div className="relative flex-1">
-        <VideoPlayer lecture={currentLecture} />
+        <VideoPlayer
+          lecture={currentLecture}
+          lectureActivity={lectureActivities.find(
+            (activity) => activity.lectureId === currentLectureId,
+          )}
+        />
 
         {/* Floating button to open sidebar when closed */}
         {!sidebarOpen && (

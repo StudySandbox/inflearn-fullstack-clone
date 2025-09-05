@@ -153,21 +153,35 @@ export class LecturesService {
     userId: string,
     updateLectureActivityDto: UpdateLectureActivityDto,
   ) {
+    const lecture = await this.prisma.lecture.findUnique({
+      where: {
+        id: lectureId,
+      },
+    });
+
+    if (!lecture) {
+      throw new NotFoundException('강의를 찾을 수 없습니다.');
+    }
+
     const result = await this.prisma.lectureActivity.upsert({
       where: {
-        userId_lectureId: {
+        userId_courseId_lectureId: {
           userId,
           lectureId,
+          courseId: lecture.courseId,
         },
       },
       create: {
         userId,
         lectureId,
+        courseId: lecture.courseId,
+        duration: updateLectureActivityDto.duration,
         progress: updateLectureActivityDto.progress,
         isCompleted: updateLectureActivityDto.isCompleted,
         lastWatchedAt: updateLectureActivityDto.lastWatchedAt,
       },
       update: {
+        duration: updateLectureActivityDto.duration,
         progress: updateLectureActivityDto.progress,
         isCompleted: updateLectureActivityDto.isCompleted,
         lastWatchedAt: updateLectureActivityDto.lastWatchedAt,
@@ -178,11 +192,22 @@ export class LecturesService {
   }
 
   async getLectureActivity(lectureId: string, userId: string) {
+    const lecture = await this.prisma.lecture.findUnique({
+      where: {
+        id: lectureId,
+      },
+    });
+
+    if (!lecture) {
+      throw new NotFoundException('강의를 찾을 수 없습니다.');
+    }
+
     const result = await this.prisma.lectureActivity.findUnique({
       where: {
-        userId_lectureId: {
+        userId_courseId_lectureId: {
           userId,
           lectureId,
+          courseId: lecture.courseId,
         },
       },
     });

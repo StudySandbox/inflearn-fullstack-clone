@@ -31,6 +31,7 @@ import { SearchCourseDto } from './dto/search-course.dto';
 import { CourseDetailDto } from './dto/course-detail.dto';
 import { GetFavoriteResponseDto } from './dto/favorite.dto';
 import { SearchCourseResponseDto } from './dto/search-response.dto';
+import { LectureActivity } from 'src/_gen/prisma-class/lecture_activity';
 
 @ApiTags('강의')
 @Controller('courses')
@@ -178,5 +179,18 @@ export class CoursesController {
   enrollCourse(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     if (!req.user) return;
     return this.coursesService.enrollCourse(id, req.user.sub);
+  }
+
+  @Get(':courseId/activity')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '개별 강의 활동 이벤트 조회',
+    type: LectureActivity,
+    isArray: true,
+  })
+  getLectureActivity(@Req() req: Request, @Param('courseId') courseId: string) {
+    if (!req.user) return;
+    return this.coursesService.getAllLectureActivities(courseId, req.user.sub);
   }
 }

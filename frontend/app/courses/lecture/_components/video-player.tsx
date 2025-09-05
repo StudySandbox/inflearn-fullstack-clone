@@ -1,8 +1,6 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ComponentType } from "react";
-
-import { Lecture as LectureEntity } from "@/generated/openapi-client";
 import {
   ArrowLeftIcon,
   MaximizeIcon,
@@ -12,8 +10,12 @@ import {
   Volume2Icon,
   VolumeXIcon,
 } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
+
 import { formatTime } from "@/lib/formats";
+import {
+  Lecture as LectureEntity,
+  LectureActivity as LectureActivityEntity,
+} from "@/generated/openapi-client";
 import {
   Select,
   SelectContent,
@@ -21,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 
 const ReactPlayer = dynamic(() => import("react-player"), {
   ssr: false,
@@ -33,6 +36,7 @@ const ReactPlayer = dynamic(() => import("react-player"), {
 
 interface Props {
   lecture: LectureEntity;
+  lectureActivity?: LectureActivityEntity;
 }
 
 export const VideoPlayer = ({ lecture }: Props) => {

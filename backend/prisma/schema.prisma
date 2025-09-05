@@ -99,13 +99,14 @@ model Course {
   updatedAt DateTime @updatedAt @map("updated_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  sections    Section[]
-  lectures    Lecture[]
-  reviews     CourseReview[]
-  favorites   CourseFavorite[]
-  questions   CourseQuestion[]
-  categories  CourseCategory[]
-  enrollments CourseEnrollment[]
+  sections          Section[]
+  lectures          Lecture[]
+  reviews           CourseReview[]
+  favorites         CourseFavorite[]
+  questions         CourseQuestion[]
+  categories        CourseCategory[]
+  lectureActivities LectureActivity[]
+  enrollments       CourseEnrollment[]
 
   instructor User @relation(fields: [instructorId], references: [id])
 
@@ -243,15 +244,18 @@ model CourseComment {
 model LectureActivity {
   id            String   @id @default(uuid())
   userId        String   @map("user_id")
+  courseId      String   @map("course_id")
   lectureId     String   @map("lecture_id")
   progress      Int      @default(0)
+  duration      Int      @default(0)
   isCompleted   Boolean  @default(false) @map("is_completed")
   lastWatchedAt DateTime @default(now()) @map("last_watched_at")
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, lectureId])
+  @@unique([userId, courseId, lectureId])
   @@map("lecture_activities")
 }
 

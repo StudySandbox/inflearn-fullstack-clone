@@ -14,14 +14,19 @@ interface Props {
 const LecturePage = async ({ searchParams }: Props) => {
   const { courseId, lectureId } = await searchParams;
   const course = await api.getCourseById(courseId);
+  const lectureActivities = await api.getAllLectureActivities(courseId);
 
-  if (!course.data || course.error) {
+  if (!course.data || course.error || !lectureActivities.data) {
     notFound();
   }
 
   return (
     <>
-      <UI course={course.data} lectureId={lectureId} />
+      <UI
+        course={course.data}
+        lectureId={lectureId}
+        lectureActivities={lectureActivities.data}
+      />
     </>
   );
 };
