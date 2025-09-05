@@ -1,10 +1,12 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 
 import { Lecture as LectureEntity } from "@/generated/openapi-client";
 import {
   ArrowLeftIcon,
+  MaximizeIcon,
+  MinimizeIcon,
   PauseIcon,
   PlayIcon,
   Volume2Icon,
@@ -15,6 +17,7 @@ import { formatTime } from "@/lib/formats";
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -26,7 +29,7 @@ const ReactPlayer = dynamic(() => import("react-player"), {
       Loading player...
     </div>
   ),
-});
+}) as unknown as ComponentType<any>;
 
 interface Props {
   lecture: LectureEntity;
@@ -197,8 +200,27 @@ export const VideoPlayer = ({ lecture }: Props) => {
                 <SelectValue />
               </SelectTrigger>
 
-              <SelectContent className="bg-black"></SelectContent>
+              <SelectContent className="border border-white/20 bg-black text-white">
+                {[0.5, 1, 1.25, 1.5, 2].map((rate) => (
+                  <SelectItem
+                    key={rate}
+                    value={rate.toString()}
+                    className="text-xs"
+                  >
+                    {rate}x
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
+
+            {/* fullscreen */}
+            <button onClick={toggleFullscreen} aria-label="fullscreen">
+              {isFullscreen ? (
+                <MinimizeIcon className="size-4" />
+              ) : (
+                <MaximizeIcon className="size-4" />
+              )}
+            </button>
           </div>
         </div>
       </div>

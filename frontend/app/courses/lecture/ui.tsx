@@ -9,6 +9,9 @@ import {
   Lecture as LectureEntity,
 } from "@/generated/openapi-client";
 
+import { Sidebar } from "./_components/sidebar";
+import { VideoPlayer } from "./_components/video-player";
+
 interface Props {
   course: CourseDetailDto;
   lectureId?: string;
