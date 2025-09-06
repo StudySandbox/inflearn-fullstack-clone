@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import {
   ArrowLeftIcon,
@@ -11,10 +12,12 @@ import {
   VolumeXIcon,
 } from "lucide-react";
 
+import * as api from "@/lib/api";
 import { formatTime } from "@/lib/formats";
 import {
   Lecture as LectureEntity,
   LectureActivity as LectureActivityEntity,
+  UpdateLectureActivityDto,
 } from "@/generated/openapi-client";
 import {
   Select,
@@ -39,8 +42,16 @@ interface Props {
   lectureActivity?: LectureActivityEntity;
 }
 
-export const VideoPlayer = ({ lecture }: Props) => {
+export const VideoPlayer = ({ lecture, lectureActivity }: Props) => {
   const router = useRouter();
+  const updateLectureActivityMutation = useMutation({
+    mutationFn: (updateLectureActivityDto: UpdateLectureActivityDto) =>
+      api.updateLectureActivity(lecture.id, updateLectureActivityDto),
+    onSuccess: (result) => {
+      console.log("Update Lecture Activity Success");
+      console.log(result);
+    },
+  });
 
   const videoUrl = (lecture.videoStorageInfo as any)?.cloudFront?.url as
     | string
@@ -48,18 +59,33 @@ export const VideoPlayer = ({ lecture }: Props) => {
 
   const playerRef = useRef<any>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const hasSeekOnReadyRef = useRef(false);
 
   const [played, setPlayed] = useState(0); // fraction 0~1
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(0.8);
-  const [duration, setDuration] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [seeking, setSeeking] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [playedSeconds, setPlayedSeconds] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    hasSeekOnReadyRef.current = false;
+    setPlayed(0);
+    setPlayedSeconds(0);
+  }, [lecture.id]);
 
   const handlePlayPause = () => {
     setPlaying((prev) => !prev);
+
+    updateLectureActivityMutation.mutate({
+      duration: playedSeconds,
+      isCompleted: played >= 0.95,
+      lastWatchedAt: new Date().toISOString(),
+      progress: Math.round(played * 100),
+    });
   };
 
   const handleMute = () => {
@@ -81,8 +107,26 @@ export const VideoPlayer = ({ lecture }: Props) => {
     playerRef.current?.seekTo(fraction, "fraction");
   };
 
-  const handleProgress = (state: { played: number }) => {
+  const handleProgress = (state: { played: number; playedSeconds: number }) => {
     if (!seeking) setPlayed(state.played);
+
+    setPlayedSeconds(Math.floor(state.playedSeconds));
+
+    updateLectureActivityMutation.mutate({
+      duration: playedSeconds,
+      isCompleted: played >= 0.95,
+      lastWatchedAt: new Date().toISOString(),
+      progress: Math.round(played * 100),
+    });
+  };
+
+  const handleEnded = () => {
+    updateLectureActivityMutation.mutate({
+      duration: Math.round(totalDuration),
+      isCompleted: true,
+      lastWatchedAt: new Date().toISOString(),
+      progress: 100,
+    });
   };
 
   const toggleFullscreen = () => {
@@ -127,8 +171,15 @@ export const VideoPlayer = ({ lecture }: Props) => {
         height="100%"
         style={{ backgroundColor: "black" }}
         onProgress={handleProgress}
-        onDuration={setDuration}
+        onDuration={setTotalDuration}
+        onEnded={handleEnded}
         playbackRate={playbackRate}
+        onReady={() => {
+          if (lectureActivity && !hasSeekOnReadyRef.current) {
+            hasSeekOnReadyRef.current = true;
+            playerRef.current?.seekTo(lectureActivity.duration, "seconds");
+          }
+        }}
       />
 
       {/* Lecture title overlay */}
@@ -173,7 +224,7 @@ export const VideoPlayer = ({ lecture }: Props) => {
 
             {/* time */}
             <span className="text-xs tabular-nums">
-              {formatTime(played * duration)} / {formatTime(duration)}
+              {formatTime(played * totalDuration)} / {formatTime(totalDuration)}
             </span>
 
             {/* volume */}
