@@ -620,7 +620,7 @@ export class CoursesService {
     return true;
   }
 
-  async createInsturctorReply(
+  async createInstructorReply(
     reviewId: string,
     userId: string,
     instructorReplyDto: InstructorReplyDto,

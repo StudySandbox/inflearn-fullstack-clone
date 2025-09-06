@@ -11,9 +11,11 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -22,6 +24,7 @@ import {
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
 import { OptionalAccessTokenGuard } from 'src/auth/guards/optional-access-token.guard';
+import { CourseReview as CourseReviewEntity } from 'src/_gen/prisma-class/course_review';
 import { CourseFavorite as CourseFavoriteEntity } from 'src/_gen/prisma-class/course_favorite';
 
 import { CoursesService } from './courses.service';
@@ -32,6 +35,10 @@ import { CourseDetailDto } from './dto/course-detail.dto';
 import { GetFavoriteResponseDto } from './dto/favorite.dto';
 import { SearchCourseResponseDto } from './dto/search-response.dto';
 import { LectureActivity } from 'src/_gen/prisma-class/lecture_activity';
+import { CourseReviewsResponseDto } from './dto/course-reviews-response.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { InstructorReplyDto } from './dto/instructor-reply.dto';
 
 @ApiTags('강의')
 @Controller('courses')
@@ -192,5 +199,97 @@ export class CoursesController {
   getLectureActivity(@Req() req: Request, @Param('courseId') courseId: string) {
     if (!req.user) return;
     return this.coursesService.getAllLectureActivities(courseId, req.user.sub);
+  }
+
+  @Get(':courseId/reviews')
+  @ApiOkResponse({
+    description: '강의 리뷰 조회',
+    type: CourseReviewsResponseDto,
+  })
+  getCourseReviews(
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+    @Query('pageSize', ParseIntPipe) pageSize: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('sort') sort: 'latest' | 'oldest' | 'rating_high' | 'rating_low',
+  ) {
+    return this.coursesService.getCourseReviews(courseId, page, pageSize, sort);
+  }
+
+  @Post(':courseId/reviews')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '수강평 작성',
+    type: CourseReviewEntity,
+  })
+  createReview(
+    @Req() req: Request,
+    @Param('courseId', ParseUUIDPipe) courseId: string,
+    @Body() createReviewDto: CreateReviewDto,
+  ) {
+    if (!req.user) return;
+
+    return this.coursesService.createReview(
+      courseId,
+      req.user.sub,
+      createReviewDto,
+    );
+  }
+
+  @Put('reviews/:reviewId')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '수강평 수정',
+    type: CourseReviewEntity,
+  })
+  updateReview(
+    @Req() req: Request,
+    @Param('reviewId', ParseUUIDPipe) reviewId: string,
+    @Body() updateReviewDto: UpdateReviewDto,
+  ) {
+    if (!req.user) return;
+
+    return this.coursesService.updateReview(
+      reviewId,
+      req.user.sub,
+      updateReviewDto,
+    );
+  }
+
+  @Delete('reviews/:reviewId')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '수강평 삭제',
+  })
+  deleteReview(
+    @Req() req: Request,
+    @Param('reviewId', ParseUUIDPipe) reviewId: string,
+  ) {
+    if (!req.user) return;
+
+    return this.coursesService.deleteReview(reviewId, req.user.sub);
+  }
+
+  @Put('reviews/:reviewId/instructor-reply')
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '강사 답변 작성/수정',
+    type: CourseReviewEntity,
+  })
+  createInstructorReply(
+    @Req() req: Request,
+    @Param('reviewId', ParseUUIDPipe) reviewId: string,
+    @Body() instructorReplyDto: InstructorReplyDto,
+  ) {
+    if (!req.user) return;
+
+    return this.coursesService.createInstructorReply(
+      reviewId,
+      req.user.sub,
+      instructorReplyDto,
+    );
   }
 }
